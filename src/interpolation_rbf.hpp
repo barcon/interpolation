@@ -27,10 +27,10 @@ namespace interpolation
 		
 		Type GetType() const override;
 		Matrix GetValue(Scalar x, Scalar y, Scalar z) const override;
-		void GetValue(NodePtr output) const override;
+		void GetValue(INodePtr output) const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetBasis(BasisPtr basis) override;
+		void SetBasis(IBasisPtr basis) override;
 		void SetShape(Scalar value);
 		void SetFunction(Type function);
 
@@ -38,7 +38,7 @@ namespace interpolation
 		InterpolationRBF();
 
 		Type type_{ interpolation_rbf };
-		BasisPtr basis_{ nullptr };
+		IBasisPtr basis_{ nullptr };
 		Nodes nodes_;
 		Vectors alpha_;
 		Scalar a_{ 1.0e-3 };

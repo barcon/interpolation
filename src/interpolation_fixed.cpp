@@ -37,12 +37,12 @@ namespace interpolation
 	}
 	Matrix InterpolationFixed::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		NodePtr output = nodes::CreateNode(x, y, z, 0.0);
+		INodePtr output = nodes::CreateNode(x, y, z, 0.0);
 		GetValue(output);
 
 		return output->GetValue();
 	}
-	void InterpolationFixed::GetValue(NodePtr output) const
+	void InterpolationFixed::GetValue(INodePtr output) const
 	{
 		output->SetValue(nodes_[n_]->GetValue());
 	}
@@ -54,7 +54,7 @@ namespace interpolation
 	{
 		n_ = index;
 	}
-	void InterpolationFixed::SetBasis(BasisPtr basis)
+	void InterpolationFixed::SetBasis(IBasisPtr basis)
 	{
 		basis_ = basis;
 	}

@@ -24,17 +24,17 @@ namespace interpolation
 
 		Type GetType() const override;
 		Matrix GetValue(Scalar x, Scalar y, Scalar z) const override;
-		void GetValue(NodePtr output) const override;
+		void GetValue(INodePtr output) const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetBasis(BasisPtr basis) override;
+		void SetBasis(IBasisPtr basis) override;
 
 	protected:
 		InterpolationNN();
 
 		Type type_{ interpolation_nn };
 		TreePtr tree_{ nullptr };
-		BasisPtr basis_{ nullptr };
+		IBasisPtr basis_{ nullptr };
 	};
 
 } // namespace interpolation

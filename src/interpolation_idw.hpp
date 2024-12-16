@@ -22,10 +22,10 @@ namespace interpolation
 
 		Type GetType() const override;
 		Matrix GetValue(Scalar x, Scalar y, Scalar z) const override;
-		void GetValue(NodePtr output) const override;
+		void GetValue(INodePtr output) const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetBasis(BasisPtr basis) override;
+		void SetBasis(IBasisPtr basis) override;
 		void SetShape(Scalar value);
 		void SetNumberNodes(NumberNodes numberNodes);
 
@@ -34,7 +34,7 @@ namespace interpolation
 
 		Type type_{ interpolation_idw };
 		TreePtr tree_{ nullptr };
-		BasisPtr basis_{ nullptr };
+		IBasisPtr basis_{ nullptr };
 		Scalar p_{ 2.0 };
 		NumberNodes n_{ 3 };
 	};

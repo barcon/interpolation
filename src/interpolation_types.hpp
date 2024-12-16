@@ -24,10 +24,11 @@ namespace interpolation
 
 	using String = utils::String;
 
-	using NodePtr = nodes::INodePtr;
+	using IBasisPtr = basis::IBasisPtr;
+	using INodePtr = nodes::INodePtr;
+
 	using Nodes = nodes::Nodes;
-	using TreePtr = kd::TreePtr;
-	using BasisPtr = basis::IBasisPtr;
+	using TreePtr = kdtree::TreePtr;
 	
 	const String headerInterpolation = "INTERPOLATION";
 
@@ -52,10 +53,10 @@ namespace interpolation
 
 		virtual Type GetType() const = 0;
 		virtual Matrix GetValue(Scalar x, Scalar y, Scalar z) const = 0;
-		virtual void GetValue(NodePtr output) const = 0;
+		virtual void GetValue(INodePtr output) const = 0;
 
 		virtual void SetNodes(const Nodes& nodes) = 0;
-		virtual void SetBasis(BasisPtr basis) = 0;
+		virtual void SetBasis(IBasisPtr basis) = 0;
 
 	protected:
 		IInterpolation() = default;

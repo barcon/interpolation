@@ -37,14 +37,14 @@ namespace interpolation
 	}
 	Matrix InterpolationNN::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		NodePtr output = nodes::CreateNode(x, y, z, 0.0);
+		INodePtr output = nodes::CreateNode(x, y, z, 0.0);
 		GetValue(output);
 
 		return output->GetValue();
 	}
-	void InterpolationNN::GetValue(NodePtr output) const
+	void InterpolationNN::GetValue(INodePtr output) const
 	{
-		NodePtr found;
+		INodePtr found;
 
 		if (tree_ == nullptr)
 		{
@@ -76,11 +76,11 @@ namespace interpolation
 			return;
 		}
 
-		tree_ = kd::CreateTree();
+		tree_ = kdtree::CreateTree();
 		tree_->SetBasis(basis_);
 		tree_->MakeTree(nodes);
 	}
-	void InterpolationNN::SetBasis(BasisPtr basis)
+	void InterpolationNN::SetBasis(IBasisPtr basis)
 	{
 		basis_ = basis;
 	}

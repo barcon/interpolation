@@ -37,12 +37,12 @@ namespace interpolation
 	}
 	Matrix InterpolationRBF::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		NodePtr output = nodes::CreateNode(x, y, z, 0.0);
+		INodePtr output = nodes::CreateNode(x, y, z, 0.0);
 		GetValue(output);
 
 		return output->GetValue();
 	}
-	void InterpolationRBF::GetValue(NodePtr output) const
+	void InterpolationRBF::GetValue(INodePtr output) const
 	{
 		Matrix vec(rows1_, 1);
 		Matrix res(rows2_, cols2_, 0.0);
@@ -155,7 +155,7 @@ namespace interpolation
 			}
 		}
 	}
-	void InterpolationRBF::SetBasis(BasisPtr basis)
+	void InterpolationRBF::SetBasis(IBasisPtr basis)
 	{
 		basis_ = basis;
 	}

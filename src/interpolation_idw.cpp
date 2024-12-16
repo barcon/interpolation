@@ -37,12 +37,12 @@ namespace interpolation
 	}
 	Matrix InterpolationIDW::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		NodePtr output = nodes::CreateNode(x, y, z, 0.0);
+		INodePtr output = nodes::CreateNode(x, y, z, 0.0);
 		GetValue(output);
 
 		return output->GetValue();
 	}
-	void InterpolationIDW::GetValue(NodePtr output) const
+	void InterpolationIDW::GetValue(INodePtr output) const
 	{
 		Scalar sum = 0.;
 		Scalars distance(n_);
@@ -91,11 +91,11 @@ namespace interpolation
 	}
 	void InterpolationIDW::SetNodes(const Nodes & nodes)
 	{
-		tree_ = kd::CreateTree();
+		tree_ = kdtree::CreateTree();
 		tree_->SetBasis(basis_);
 		tree_->MakeTree(nodes);
 	}
-	void InterpolationIDW::SetBasis(BasisPtr basis)
+	void InterpolationIDW::SetBasis(IBasisPtr basis)
 	{
 		basis_ = basis;
 	}
