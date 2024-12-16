@@ -1,2 +1,2 @@
 # interpolation
-C++ Interpolation for Nodes Library
+C++ Interpolation Methods for Nodes Library
