@@ -1,7 +1,24 @@
 #include "interpolation_rbf.hpp"
+#include <cmath>
 
 namespace interpolation
 {
+	Status CallbackIterative(Index iteration, Scalar residual)
+	{
+		Scalar tolerance = 1.0e-5;
+		if (std::isnan(residual))
+		{
+			return eilig::EILIG_NOT_CONVERGED;
+		}
+
+		if (residual < tolerance)
+		{
+			return eilig::EILIG_SUCCESS;
+		}
+
+		return eilig::EILIG_CONTINUE;
+	}
+
 	InterpolationRBFPtr CreateInterpolationRBF()
 	{
 		auto res = InterpolationRBF::Create();
@@ -144,7 +161,7 @@ namespace interpolation
 					d(i) = nodes_[i]->GetValue()(u, v);
 				}
 
-				status = eilig::IterativBiCGStab(y, A, d);
+				status = eilig::IterativeBiCGStab(A, y, d, CallbackIterative);
 				if (status != eilig::EILIG_SUCCESS)
 				{
 					logger::Error(headerInterpolation, "Interpolation failed to initialize : " + eilig::messages.at(eilig::EILIG_NOT_CONVERGED));
