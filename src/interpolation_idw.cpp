@@ -37,7 +37,10 @@ namespace interpolation
 	}
 	Matrix InterpolationIDW::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		INodePtr output = nodes::CreateNode(x, y, z, 0.0);
+		auto output = nodes::CreateNode();
+
+		output->SetPoint(x, y, z);
+
 		GetValue(output);
 
 		return output->GetValue();
