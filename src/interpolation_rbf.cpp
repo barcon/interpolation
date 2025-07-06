@@ -64,8 +64,8 @@ namespace interpolation
 	}
 	void InterpolationRBF::GetValue(INodePtr output) const
 	{
-		Matrix vec(rows1_, 1);
-		Matrix res(rows2_, cols2_, 0.0);
+		Matrix vec(rows1_, 1, eilig::matrix_zeros);
+		Matrix res(rows2_, cols2_, eilig::matrix_zeros);
 		Scalar aux{ 0.0 };
 		unsigned int counter{ 0 };
 
@@ -129,7 +129,7 @@ namespace interpolation
 		rows2_ = nodes_[0]->GetValue().GetRows();
 		cols2_ = nodes_[0]->GetValue().GetCols();
 
-		Matrix A(rows1_, cols1_, 0.0);
+		Matrix A(rows1_, cols1_, eilig::matrix_zeros);
 		Vector d(rows1_, 0.0);
 		Vector y(rows1_, 0.0);
 		Status status{ eilig::EILIG_SUCCESS };
