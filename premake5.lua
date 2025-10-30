@@ -13,7 +13,7 @@ project "interpolation"
 	includedirs { "../logger/src" }	
 	includedirs { "../eilig/src" }	
 	includedirs { "../basis/src" }
-	includedirs { "../nodes/src" }	
+	includedirs { "../node/src" }	
 	includedirs { "../kdtree/src" }	
 
 	files { "src/**.hpp", "src/**.cpp" }

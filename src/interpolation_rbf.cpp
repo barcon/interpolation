@@ -54,7 +54,7 @@ namespace interpolation
 	}
 	Matrix InterpolationRBF::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		auto output = nodes::CreateNode();
+		auto output = node::CreateNode();
 
 		output->SetPoint(x, y, z);
 
@@ -164,7 +164,7 @@ namespace interpolation
 					d(i) = nodes_[i]->GetValue()(u, v);
 				}
 
-				status = eilig::IterativeBiCGStab(A, y, d, CallbackIterative);
+				status = eilig::IterativeBiCGStab(A, y, d);
 				if (status != eilig::EILIG_SUCCESS)
 				{
 					logger::Error(headerInterpolation, "Interpolation failed to initialize : " + eilig::messages.at(eilig::EILIG_NOT_CONVERGED));

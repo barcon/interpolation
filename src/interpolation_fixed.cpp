@@ -37,7 +37,7 @@ namespace interpolation
 	}
 	Matrix InterpolationFixed::GetValue(Scalar x, Scalar y, Scalar z) const
 	{
-		auto output = nodes::CreateNode();
+		auto output = node::CreateNode();
 
 		output->SetPoint(x, y, z);
 

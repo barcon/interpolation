@@ -5,7 +5,7 @@
 #include "logger.hpp"
 #include "eilig.hpp"
 #include "basis.hpp"
-#include "nodes.hpp"
+#include "node.hpp"
 #include "kdtree.hpp"
 
 #include <variant>
@@ -25,9 +25,9 @@ namespace interpolation
 	using String = utils::String;
 
 	using IBasisPtr = basis::IBasisPtr;
-	using INodePtr = nodes::INodePtr;
+	using INodePtr = node::INodePtr;
 
-	using Nodes = nodes::Nodes;
+	using Nodes = node::Nodes;
 	using TreePtr = kdtree::TreePtr;
 	
 	const String headerInterpolation = "INTERPOLATION";
