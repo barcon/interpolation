@@ -167,7 +167,7 @@ namespace interpolation
 				status = eilig::IterativeBiCGStab(A, y, d);
 				if (status != eilig::EILIG_SUCCESS)
 				{
-					logger::Error(headerInterpolation, "Interpolation failed to initialize : " + eilig::messages.at(eilig::EILIG_NOT_CONVERGED));
+					logger::Error(headerInterpolation, utils::string::Format("Interpolation failed to initialize: {}", eilig::messages.at(eilig::EILIG_NOT_CONVERGED)));
 					return;
 				}
 

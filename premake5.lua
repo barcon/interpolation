@@ -6,7 +6,7 @@ workspace "interpolation"
 project "interpolation"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 
 	targetdir "build/%{cfg.buildcfg}"
 	includedirs { "../utils/src" }	
