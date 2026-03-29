@@ -17,12 +17,9 @@ namespace interpolation
 		virtual ~InterpolationIDW() = default;
 
 		static InterpolationIDWPtr Create();
-		InterpolationIDWPtr GetPtr();
-		ConstInterpolationIDWPtr GetPtr() const;
 
 		Type GetType() const override;
-		Matrix GetValue(Scalar x, Scalar y, Scalar z) const override;
-		void GetValue(INodePtr output) const override;
+		Matrix GetValue(const Vector& point) const override;
 
 		void SetNodes(const Nodes& nodes) override;
 		void SetBasis(IBasisPtr basis) override;

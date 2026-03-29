@@ -10,7 +10,7 @@ namespace interpolation
 	}
 	InterpolationIDW::InterpolationIDW()
 	{
-		basis_ = basis::CreateBasisCartesian();
+		basis_ = basis::CreateBasisCartesian(0);
 	}
 	InterpolationIDWPtr InterpolationIDW::Create()
 	{
@@ -23,59 +23,39 @@ namespace interpolation
 		return res;
 
 	}
-	InterpolationIDWPtr InterpolationIDW::GetPtr()
-	{
-		return this->shared_from_this();
-	}
-	ConstInterpolationIDWPtr InterpolationIDW::GetPtr() const
-	{
-		return const_cast<InterpolationIDW*>(this)->GetPtr();
-	}
 	Type InterpolationIDW::GetType() const
 	{
 		return type_;
 	}
-	Matrix InterpolationIDW::GetValue(Scalar x, Scalar y, Scalar z) const
-	{
-		auto output = node::CreateNode();
-
-		output->SetPoint(x, y, z);
-
-		GetValue(output);
-
-		return output->GetValue();
-	}
-	void InterpolationIDW::GetValue(INodePtr output) const
+	Matrix InterpolationIDW::GetValue(const Vector& point) const
 	{
 		Scalar sum = 0.;
 		Scalars distance(n_);
 		Scalars weight(n_);
 		Nodes found;
 		Matrix res;
+		INodePtr output = node::CreateNode(0, point);
 
 		if (tree_ == nullptr)
 		{
-			logger::Error(headerInterpolation, "Search tree not initialized");
-			return;
+			throw std::runtime_error("Search tree not initialized");
 		}
 
 		found = tree_->SearchNumber(output, n_);
 
 		if (found.size() != n_)
 		{
-			logger::Error(headerInterpolation, "Min. number of nodes could not be found for the interpolation.");
-			return;
+			throw std::runtime_error("Min. number of nodes could not be found for the interpolation.");
 		}
 
-		for (unsigned int i = 0; i < n_; ++i)
+		for (Index i = 0; i < n_; ++i)
 		{
 			distance[i] = basis_->Distance(found[i]->GetPoint(), output->GetPoint());
 
 			if (utils::math::IsAlmostEqual(distance[i], 0., 2))
 			{
 				res = found[i]->GetValue();
-				output->SetValue(res);
-				return;
+				return res;
 			}
 
 			weight[i] = std::pow(distance[i], -p_);
@@ -83,14 +63,15 @@ namespace interpolation
 		}
 
 		res = weight[0] * found[0]->GetValue();
-		for (unsigned int i = 1; i < n_; ++i)
+		for (Index i = 1; i < n_; ++i)
 		{
 			res = res + weight[i] * found[i]->GetValue();
 		}
 
 		sum = 1.0 / sum;
 		res = res * sum;
-		output->SetValue(res);
+
+		return res;
 	}
 	void InterpolationIDW::SetNodes(const Nodes & nodes)
 	{

@@ -7,6 +7,8 @@ namespace interpolation
 {
 	static const Type interpolation_function_TPS = 1;
 	static const Type interpolation_function_MQB = 2;
+	static const Type interpolation_function_GAU = 3;
+	static const Type interpolation_function_INQ = 4;
 
 	class InterpolationRBF;
 	using InterpolationRBFPtr = std::shared_ptr< InterpolationRBF >;
@@ -17,22 +19,20 @@ namespace interpolation
 	class InterpolationRBF : public IInterpolation, public std::enable_shared_from_this<InterpolationRBF>
 	{
 	public:
-		using FunctionScalar = Scalar(InterpolationRBF::*)(const Vector&, const Vector&) const;
+		using Function_S_VV = Scalar(InterpolationRBF::*)(const Vector&, const Vector&) const;
+		using Function_S_V = Scalar(InterpolationRBF::*)(const Vector&) const;
+		using Polynomials = std::vector<Function_S_V>;
 
 		virtual ~InterpolationRBF() = default;
 
 		static InterpolationRBFPtr Create();
-		InterpolationRBFPtr GetPtr();
-		ConstInterpolationRBFPtr GetPtr() const;
 		
 		Type GetType() const override;
-		Matrix GetValue(Scalar x, Scalar y, Scalar z) const override;
-		void GetValue(INodePtr output) const override;
+		Matrix GetValue(const Vector& point) const override;
 
 		void SetNodes(const Nodes& nodes) override;
 		void SetBasis(IBasisPtr basis) override;
-		void SetShape(Scalar value);
-		void SetFunction(Type function);
+		void SetFunction(Type function, Scalar shape);
 
 	protected:
 		InterpolationRBF();
@@ -41,19 +41,23 @@ namespace interpolation
 		IBasisPtr basis_{ nullptr };
 		Nodes nodes_;
 		Vectors alpha_;
-		Scalar a_{ 1.0e-3 };
+		Scalar shape_{ 0.1 };
 
-		Dimension dim_{ 0 };
-		Index nn_{ 0 };
-		Index rows1_{ 0 };
-		Index cols1_{ 0 };
-		Index rows2_{ 0 };
-		Index cols2_{ 0 };
+		NumberDof numberDof_{ 0 };
+		NumberNodes numberNodes_{ 0 };
 
-		FunctionScalar function_{ &InterpolationRBF::FunctionTPS };
+		Polynomials polynomials_;
+		Function_S_VV function_{ &InterpolationRBF::FunctionTPS };
 
 		Scalar FunctionTPS(const Vector& point1, const Vector& point2) const;
 		Scalar FunctionMQB(const Vector& point1, const Vector& point2) const;
+		Scalar FunctionGAU(const Vector& point1, const Vector& point2) const;
+		Scalar FunctionINQ(const Vector& point1, const Vector& point2) const;
+		
+		Scalar FunctionP0C(const Vector& point) const;
+		Scalar FunctionP1X(const Vector& point) const;
+		Scalar FunctionP1Y(const Vector& point) const;
+		Scalar FunctionP1Z(const Vector& point) const;
 	};
 
 } // namespace interpolation

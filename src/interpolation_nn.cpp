@@ -10,7 +10,7 @@ namespace interpolation
 	}
 	InterpolationNN::InterpolationNN()
 	{
-		basis_ = basis::CreateBasisCartesian();
+		basis_ = basis::CreateBasisCartesian(0);
 	}
 	InterpolationNNPtr InterpolationNN::Create()
 	{
@@ -23,47 +23,28 @@ namespace interpolation
 		return res;
 
 	}
-	InterpolationNNPtr InterpolationNN::GetPtr()
-	{
-		return this->shared_from_this();
-	}
-	ConstInterpolationNNPtr InterpolationNN::GetPtr() const
-	{
-		return const_cast<InterpolationNN*>(this)->GetPtr();
-	}
 	Type InterpolationNN::GetType() const
 	{
 		return type_;
 	}
-	Matrix InterpolationNN::GetValue(Scalar x, Scalar y, Scalar z) const
-	{
-		auto output = node::CreateNode();
-
-		output->SetPoint(x, y, z);
-
-		GetValue(output);
-
-		return output->GetValue();
-	}
-	void InterpolationNN::GetValue(INodePtr output) const
+	Matrix InterpolationNN::GetValue(const Vector& point) const
 	{
 		INodePtr found;
+		INodePtr output = node::CreateNode(0, point);
 
 		if (tree_ == nullptr)
 		{
-			logger::Error(headerInterpolation, "Search tree not initialized");
-			return;
+			throw std::runtime_error("Search tree not initialized");
 		}
 
 		found = tree_->Search(output);
 
 		if (found == nullptr)
 		{
-			logger::Error(headerInterpolation, "Min. number of nodes could not be found for the interpolation.");
-			return;
+			throw std::runtime_error("Min. number of nodes could not be found for the interpolation.");
 		}
 
-		output->SetValue(found->GetValue());
+		return found->GetValue();
 	}
 	void InterpolationNN::SetNodes(const Nodes& nodes)
 	{

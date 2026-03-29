@@ -32,9 +32,12 @@ namespace interpolation
 	
 	const String headerInterpolation = "INTERPOLATION";
 
-	using Dimension = basis::Dimension;
-	using Index = std::size_t;
-	using NumberNodes = std::size_t;
+	using Index = node::Index;
+	using DofIndex = node::DofIndex;
+
+	using Number = node::Number;
+	using NumberDof = node::NumberDof;
+	using NumberNodes = node::Number;
 
 	using Type = std::size_t;
 	static const Type interpolation_fixed	= 1;
@@ -52,8 +55,7 @@ namespace interpolation
 		virtual ~IInterpolation() = default;
 
 		virtual Type GetType() const = 0;
-		virtual Matrix GetValue(Scalar x, Scalar y, Scalar z) const = 0;
-		virtual void GetValue(INodePtr output) const = 0;
+		virtual Matrix GetValue(const Vector& point) const = 0;
 
 		virtual void SetNodes(const Nodes& nodes) = 0;
 		virtual void SetBasis(IBasisPtr basis) = 0;

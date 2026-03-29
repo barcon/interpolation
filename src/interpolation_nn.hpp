@@ -17,14 +17,11 @@ namespace interpolation
 	public:
 
 		static InterpolationNNPtr Create();
-		InterpolationNNPtr GetPtr();
-		ConstInterpolationNNPtr GetPtr() const;
 
 		virtual ~InterpolationNN() = default;
 
 		Type GetType() const override;
-		Matrix GetValue(Scalar x, Scalar y, Scalar z) const override;
-		void GetValue(INodePtr output) const override;
+		Matrix GetValue(const Vector& point) const override;
 
 		void SetNodes(const Nodes& nodes) override;
 		void SetBasis(IBasisPtr basis) override;

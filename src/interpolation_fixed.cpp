@@ -10,7 +10,7 @@ namespace interpolation
 	}
 	InterpolationFixed::InterpolationFixed()
 	{
-		basis_ = basis::CreateBasisCartesian();
+		basis_ = basis::CreateBasisCartesian(0);
 	}
 	InterpolationFixedPtr InterpolationFixed::Create()
 	{
@@ -23,31 +23,13 @@ namespace interpolation
 		return res;
 
 	}
-	InterpolationFixedPtr InterpolationFixed::GetPtr()
-	{
-		return this->shared_from_this();
-	}
-	ConstInterpolationFixedPtr InterpolationFixed::GetPtr() const
-	{
-		return const_cast<InterpolationFixed*>(this)->GetPtr();
-	}
 	Type InterpolationFixed::GetType() const
 	{
 		return type_;
 	}
-	Matrix InterpolationFixed::GetValue(Scalar x, Scalar y, Scalar z) const
+	Matrix InterpolationFixed::GetValue(const Vector& point) const
 	{
-		auto output = node::CreateNode();
-
-		output->SetPoint(x, y, z);
-
-		GetValue(output);
-
-		return output->GetValue();
-	}
-	void InterpolationFixed::GetValue(INodePtr output) const
-	{
-		output->SetValue(nodes_[n_]->GetValue());
+		return nodes_[n_]->GetValue();
 	}
 	void InterpolationFixed::SetNodes(const Nodes& nodes)
 	{
