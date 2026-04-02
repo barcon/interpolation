@@ -38,6 +38,7 @@ namespace interpolation
 	using Number = node::Number;
 	using NumberDof = node::NumberDof;
 	using NumberNodes = node::Number;
+	using NumberCoordinates = node::NumberCoordinates;
 
 	using Type = std::size_t;
 	static const Type interpolation_fixed	= 1;
@@ -56,9 +57,9 @@ namespace interpolation
 
 		virtual Type GetType() const = 0;
 		virtual Matrix GetValue(const Vector& point) const = 0;
+		virtual NumberCoordinates GetNumberCoordinates() const = 0;
 
 		virtual void SetNodes(const Nodes& nodes) = 0;
-		virtual void SetBasis(IBasisPtr basis) = 0;
 
 	protected:
 		IInterpolation() = default;

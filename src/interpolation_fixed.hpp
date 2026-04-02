@@ -7,33 +7,33 @@ namespace interpolation
 {
 	class InterpolationFixed;
 	using InterpolationFixedPtr = std::shared_ptr< InterpolationFixed >;
-	using ConstInterpolationFixedPtr = std::shared_ptr< const InterpolationFixed >;
 
-	InterpolationFixedPtr CreateInterpolationFixed();
+	InterpolationFixedPtr CreateInterpolationFixed(IBasisPtr basis, const Nodes& nodes, Index nodeIndex);
 
 	class InterpolationFixed : public IInterpolation, public std::enable_shared_from_this<InterpolationFixed>
 	{
 	public:
 
-		static InterpolationFixedPtr Create();
+		static InterpolationFixedPtr Create(IBasisPtr basis);
 
 		virtual ~InterpolationFixed() = default;
 
 		Type GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
+		NumberCoordinates GetNumberCoordinates() const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetBasis(IBasisPtr basis) override;
-		void SetNodeIndex(Index index);
+		void SetNodeIndex(Index nodeIndex);
 
 	protected:
-		InterpolationFixed();
+		InterpolationFixed() = default;
+
+		void SetBasis(IBasisPtr basis);
 
 		Type type_{ interpolation_fixed };
 		Nodes nodes_;
+		Index nodeIndex_{ 0 };
 		IBasisPtr basis_{ nullptr };
-
-		Index n_{ 0 };
 	};
 
 } // namespace interpolation

@@ -2,17 +2,15 @@
 
 namespace interpolation
 {
-	InterpolationNNPtr CreateInterpolationNN()
+	InterpolationNNPtr CreateInterpolationNN(IBasisPtr basis, const Nodes& nodes)
 	{
-		auto res = InterpolationNN::Create();
+		auto res = InterpolationNN::Create(basis);
+
+		res->SetNodes(nodes);
 
 		return res;
 	}
-	InterpolationNN::InterpolationNN()
-	{
-		basis_ = basis::CreateBasisCartesian(0);
-	}
-	InterpolationNNPtr InterpolationNN::Create()
+	InterpolationNNPtr InterpolationNN::Create(IBasisPtr basis)
 	{
 		class MakeSharedEnabler : public InterpolationNN
 		{
@@ -20,8 +18,9 @@ namespace interpolation
 
 		auto res = std::make_shared<MakeSharedEnabler>();
 
-		return res;
+		res->SetBasis(basis);
 
+		return res;
 	}
 	Type InterpolationNN::GetType() const
 	{
@@ -37,6 +36,11 @@ namespace interpolation
 			throw std::runtime_error("Search tree not initialized");
 		}
 
+		if (point.GetRows() != GetNumberCoordinates())
+		{
+			throw std::invalid_argument("Point dimensions do not match basis coordinates.");
+		}
+
 		found = tree_->Search(output);
 
 		if (found == nullptr)
@@ -46,18 +50,35 @@ namespace interpolation
 
 		return found->GetValue();
 	}
+	NumberCoordinates InterpolationNN::GetNumberCoordinates() const
+	{
+		return basis_->GetNumberCoordinates();
+	}
 	void InterpolationNN::SetNodes(const Nodes& nodes)
 	{
 		if (nodes.size() == 0)
 		{
-			logger::Error(headerInterpolation, "Incompatible size: number of nodes");
-			return;
+			throw std::invalid_argument("Nodes cannot be empty.");
 		}
 
-		if (basis_ == nullptr)
+		auto numberDof = nodes[0]->GetNumberDof();
+
+		for (auto& node : nodes)
 		{
-			logger::Error(headerInterpolation, "Basis pointer is nullptr. Set a basis first");
-			return;
+			if (node == nullptr)
+			{
+				throw std::invalid_argument("Nodes cannot contain null pointers.");
+			}
+
+			if (node->GetNumberCoordinates() != GetNumberCoordinates())
+			{
+				throw std::invalid_argument("Node coordinates do not match basis coordinates.");
+			}
+
+			if (node->GetNumberDof() != numberDof)
+			{
+				throw std::invalid_argument("All nodes must have the same number of degrees of freedom.");
+			}
 		}
 
 		tree_ = kdtree::CreateTree();
@@ -66,6 +87,11 @@ namespace interpolation
 	}
 	void InterpolationNN::SetBasis(IBasisPtr basis)
 	{
+		if (basis == nullptr)
+		{
+			throw std::invalid_argument("Basis cannot be null.");
+		}
+
 		basis_ = basis;
 	}
 } //namespace interpolation

@@ -14,7 +14,7 @@ namespace interpolation
 	using InterpolationRBFPtr = std::shared_ptr< InterpolationRBF >;
 	using ConstInterpolationRBFPtr = std::shared_ptr< const InterpolationRBF >;
 
-	InterpolationRBFPtr CreateInterpolationRBF();
+	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes);
 
 	class InterpolationRBF : public IInterpolation, public std::enable_shared_from_this<InterpolationRBF>
 	{
@@ -25,26 +25,25 @@ namespace interpolation
 
 		virtual ~InterpolationRBF() = default;
 
-		static InterpolationRBFPtr Create();
+		static InterpolationRBFPtr Create(IBasisPtr basis);
 		
 		Type GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
+		NumberCoordinates GetNumberCoordinates() const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetBasis(IBasisPtr basis) override;
 		void SetFunction(Type function, Scalar shape);
 
 	protected:
-		InterpolationRBF();
+		InterpolationRBF() = default;
+		
+		void SetBasis(IBasisPtr basis);
 
 		Type type_{ interpolation_rbf };
 		IBasisPtr basis_{ nullptr };
 		Nodes nodes_;
 		Vectors alpha_;
 		Scalar shape_{ 0.1 };
-
-		NumberDof numberDof_{ 0 };
-		NumberNodes numberNodes_{ 0 };
 
 		Polynomials polynomials_;
 		Function_S_VV function_{ &InterpolationRBF::FunctionTPS };

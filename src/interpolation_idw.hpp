@@ -7,33 +7,34 @@ namespace interpolation
 {
 	class InterpolationIDW;
 	using InterpolationIDWPtr = std::shared_ptr< InterpolationIDW >;
-	using ConstInterpolationIDWPtr = std::shared_ptr< const InterpolationIDW >;
 
-	InterpolationIDWPtr CreateInterpolationIDW();
+	InterpolationIDWPtr CreateInterpolationIDW(IBasisPtr basis, const Nodes& nodes);
 
 	class InterpolationIDW : public IInterpolation, public std::enable_shared_from_this<InterpolationIDW>
 	{
 	public:
 		virtual ~InterpolationIDW() = default;
 
-		static InterpolationIDWPtr Create();
+		static InterpolationIDWPtr Create(IBasisPtr basis);
 
 		Type GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
+		NumberCoordinates GetNumberCoordinates() const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetBasis(IBasisPtr basis) override;
 		void SetShape(Scalar value);
-		void SetNumberNodes(NumberNodes numberNodes);
 
 	protected:
-		InterpolationIDW();
+		InterpolationIDW() = default;
+
+		void SetBasis(IBasisPtr basis);
 
 		Type type_{ interpolation_idw };
 		TreePtr tree_{ nullptr };
 		IBasisPtr basis_{ nullptr };
-		Scalar p_{ 2.0 };
-		NumberNodes n_{ 3 };
+		Scalar shape_{ 2.0 };
+		NumberNodes numberNodes_{ 3 };
+		const NumberCoordinates numberCoordinates_{ 3 };
 	};
 
 } // namespace interpolation
