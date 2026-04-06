@@ -67,9 +67,9 @@ namespace interpolation
 			}
 		}
 
-		SetNodeIndex(0);
-
 		nodes_ = nodes;
+
+		SetNodeIndex(0);
 	}
 	void InterpolationFixed::SetNodeIndex(Index nodeIndex)
 	{

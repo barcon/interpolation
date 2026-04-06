@@ -3,15 +3,32 @@
 
 namespace interpolation
 {
-	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes)
+	CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
+		{
+			Scalar tolerance{ 1e-2 };
+
+			if (std::isnan(residual))
+			{
+				return eilig::EILIG_NOT_CONVERGED;
+			}
+
+			if (residual < tolerance)
+			{
+				return eilig::EILIG_SUCCESS;
+			}
+
+			return eilig::EILIG_CONTINUE;
+		};
+
+	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes, Type function, Scalar shape)
 	{
-		auto res = InterpolationRBF::Create(basis);
+		auto res = InterpolationRBF::Create(basis, function, shape);
 
 		res->SetNodes(nodes);
 
 		return res;
 	}
-	InterpolationRBFPtr InterpolationRBF::Create(IBasisPtr basis)
+	InterpolationRBFPtr InterpolationRBF::Create(IBasisPtr basis, Type function, Scalar shape)
 	{
 		class MakeSharedEnabler : public InterpolationRBF
 		{
@@ -20,27 +37,7 @@ namespace interpolation
 		auto res = std::make_shared<MakeSharedEnabler>();
 
 		res->SetBasis(basis);
-
-		switch (res->GetNumberCoordinates())
-		{
-		case 1:
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
-			break;
-		case 2:
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP1Y);
-			break;
-		case 3:
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP1Y);
-			res->polynomials_.push_back(&InterpolationRBF::FunctionP1Z);
-			break;
-		default:
-			throw std::invalid_argument("Unsupported number of coordinates for RBF interpolation.");
-		}
+		res->SetFunction(function, shape);
 
 		return res;
 	}
@@ -53,8 +50,7 @@ namespace interpolation
 		auto numberNodes = nodes_.size();
 		auto numberDof = nodes_[0]->GetNumberDof();
 
-		Number order = polynomials_.size();
-		Vector rbf(numberNodes + order, 0.0);
+		Vector rbf(numberNodes, 0.0);
 		Matrix output(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), eilig::matrix_zeros);
 
 		if (alpha_.size() == 0)
@@ -65,11 +61,6 @@ namespace interpolation
 		for (Index i = 0; i < numberNodes; ++i)
 		{
 			rbf(i) = (this->*function_)(point, nodes_[i]->GetPoint());
-		}
-
-		for (Index k = 0; k < order; ++k)
-		{
-			rbf(numberNodes + k) = (this->*polynomials_[k])(point);
 		}
 
 		for (DofIndex dof = 0; dof < numberDof; ++dof)
@@ -91,7 +82,7 @@ namespace interpolation
 		}
 
 		auto numberDof = nodes[0]->GetNumberDof();
-		auto numberNodes = nodes_.size();
+		auto numberNodes = nodes.size();
 
 		for (auto& node : nodes)
 		{
@@ -111,16 +102,15 @@ namespace interpolation
 			}
 		}
 
+		nodes_ = nodes;
+		alpha_.clear();
+
 		logger::Info(headerInterpolation, "Solving InterpolationRBF linear system");
 
-		alpha_.clear();
-		nodes_ = nodes;
-
-		Number order = polynomials_.size();
-		Matrix A(numberNodes + order, numberNodes + order, eilig::matrix_zeros);
-		Vector d(numberNodes + order, 0.0);
-		Vector y(numberNodes + order, 0.0);
-		Status status{ eilig::EILIG_SUCCESS };
+		Matrix A(numberNodes, numberNodes, eilig::matrix_zeros);
+		Vector d(numberNodes, 0.0);
+		Vector y(numberNodes, 0.0);
+		Status status{ eilig::EILIG_NOT_CONVERGED };
 
 		for (Index i = 0; i < numberNodes; ++i)
 		{
@@ -132,12 +122,6 @@ namespace interpolation
 
 				A(i, j) = (this->*function_)(point2, point1);
 
-				for (Index k = 0; k < order; ++k)
-				{
-
-					A(i, k + numberNodes) = (this->*polynomials_[k])(point2);
-					A(k + numberNodes, i) = (this->*polynomials_[k])(point2);
-				}
 			}
 		}
 
@@ -148,7 +132,7 @@ namespace interpolation
 				d(i) = nodes_[i]->GetValue(dof);
 			}
 
-			status = eilig::IterativeBiCGStab(A, y, d);
+			status = eilig::IterativeBiCGStab(A, y, d, callbackIterative);
 			if (status != eilig::EILIG_SUCCESS)
 			{
 				logger::Error(headerInterpolation, utils::string::Format("Interpolation failed to initialize: {}", eilig::messages.at(eilig::EILIG_NOT_CONVERGED)));
@@ -215,7 +199,12 @@ namespace interpolation
 		return 1.0 / (r * r + shape_ * shape_);
 
 	}
-	
+} //namespace interpolation
+
+/*
+
+
+
 	Scalar InterpolationRBF::FunctionP0C(const Vector& point) const
 	{
 		return 1.0;
@@ -232,4 +221,33 @@ namespace interpolation
 	{
 		return point(2);
 	}
-} //namespace interpolation
+
+
+for (Index k = 0; k < order; ++k)
+{
+
+	A(i, k + numberNodes) = (this->*polynomials_[k])(point2);
+	A(k + numberNodes, i) = (this->*polynomials_[k])(point2);
+}
+
+
+switch (res->GetNumberCoordinates())
+{
+case 1:
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
+	break;
+case 2:
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP1Y);
+	break;
+case 3:
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP1Y);
+	res->polynomials_.push_back(&InterpolationRBF::FunctionP1Z);
+	break;
+default:
+	throw std::invalid_argument("Unsupported number of coordinates for RBF interpolation.");
+}*/

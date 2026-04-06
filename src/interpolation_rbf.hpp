@@ -14,7 +14,7 @@ namespace interpolation
 	using InterpolationRBFPtr = std::shared_ptr< InterpolationRBF >;
 	using ConstInterpolationRBFPtr = std::shared_ptr< const InterpolationRBF >;
 
-	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes);
+	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes, Type function, Scalar shape);
 
 	class InterpolationRBF : public IInterpolation, public std::enable_shared_from_this<InterpolationRBF>
 	{
@@ -25,19 +25,19 @@ namespace interpolation
 
 		virtual ~InterpolationRBF() = default;
 
-		static InterpolationRBFPtr Create(IBasisPtr basis);
+		static InterpolationRBFPtr Create(IBasisPtr basis, Type function, Scalar shape);
 		
 		Type GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
 		NumberCoordinates GetNumberCoordinates() const override;
 
 		void SetNodes(const Nodes& nodes) override;
-		void SetFunction(Type function, Scalar shape);
 
 	protected:
 		InterpolationRBF() = default;
 		
 		void SetBasis(IBasisPtr basis);
+		void SetFunction(Type function, Scalar shape);
 
 		Type type_{ interpolation_rbf };
 		IBasisPtr basis_{ nullptr };
@@ -52,11 +52,6 @@ namespace interpolation
 		Scalar FunctionMQB(const Vector& point1, const Vector& point2) const;
 		Scalar FunctionGAU(const Vector& point1, const Vector& point2) const;
 		Scalar FunctionINQ(const Vector& point1, const Vector& point2) const;
-		
-		Scalar FunctionP0C(const Vector& point) const;
-		Scalar FunctionP1X(const Vector& point) const;
-		Scalar FunctionP1Y(const Vector& point) const;
-		Scalar FunctionP1Z(const Vector& point) const;
 	};
 
 } // namespace interpolation
