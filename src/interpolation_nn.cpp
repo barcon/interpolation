@@ -2,11 +2,9 @@
 
 namespace interpolation
 {
-	InterpolationNNPtr CreateInterpolationNN(IBasisPtr basis, const Nodes& nodes)
+	InterpolationNNPtr CreateInterpolationNN(IBasisPtr basis)
 	{
 		auto res = InterpolationNN::Create(basis);
-
-		res->SetNodes(nodes);
 
 		return res;
 	}

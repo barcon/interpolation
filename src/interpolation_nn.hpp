@@ -10,7 +10,7 @@ namespace interpolation
 	using InterpolationNNPtr = std::shared_ptr< InterpolationNN >;
 	using ConstInterpolationNNPtr = std::shared_ptr< const InterpolationNN >;
 
-	InterpolationNNPtr CreateInterpolationNN(IBasisPtr basis, const Nodes& nodes);
+	InterpolationNNPtr CreateInterpolationNN(IBasisPtr basis);
 
 	class InterpolationNN : public IInterpolation, public std::enable_shared_from_this<InterpolationNN>
 	{

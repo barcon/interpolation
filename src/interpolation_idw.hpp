@@ -8,7 +8,7 @@ namespace interpolation
 	class InterpolationIDW;
 	using InterpolationIDWPtr = std::shared_ptr< InterpolationIDW >;
 
-	InterpolationIDWPtr CreateInterpolationIDW(IBasisPtr basis, const Nodes& nodes);
+	InterpolationIDWPtr CreateInterpolationIDW(IBasisPtr basis);
 
 	class InterpolationIDW : public IInterpolation, public std::enable_shared_from_this<InterpolationIDW>
 	{

@@ -2,11 +2,9 @@
 
 namespace interpolation
 {
-	InterpolationIDWPtr CreateInterpolationIDW(IBasisPtr basis, const Nodes& nodes)
+	InterpolationIDWPtr CreateInterpolationIDW(IBasisPtr basis)
 	{
 		auto res = InterpolationIDW::Create(basis);
-
-		res->SetNodes(nodes);
 
 		return res;
 	}

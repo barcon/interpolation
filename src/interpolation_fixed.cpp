@@ -2,12 +2,9 @@
 
 namespace interpolation
 {
-	InterpolationFixedPtr CreateInterpolationFixed(IBasisPtr basis, const Nodes& nodes, Index nodeIndex)
+	InterpolationFixedPtr CreateInterpolationFixed(IBasisPtr basis)
 	{
 		auto res = InterpolationFixed::Create(basis);
-
-		res->SetNodes(nodes);
-		res->SetNodeIndex(nodeIndex);
 
 		return res;
 	}

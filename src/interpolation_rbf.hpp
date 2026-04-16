@@ -14,7 +14,7 @@ namespace interpolation
 	using InterpolationRBFPtr = std::shared_ptr< InterpolationRBF >;
 	using ConstInterpolationRBFPtr = std::shared_ptr< const InterpolationRBF >;
 
-	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes, Type function, Scalar shape);
+	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, Type function, Scalar shape);
 
 	class InterpolationRBF : public IInterpolation, public std::enable_shared_from_this<InterpolationRBF>
 	{

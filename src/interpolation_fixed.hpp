@@ -8,7 +8,7 @@ namespace interpolation
 	class InterpolationFixed;
 	using InterpolationFixedPtr = std::shared_ptr< InterpolationFixed >;
 
-	InterpolationFixedPtr CreateInterpolationFixed(IBasisPtr basis, const Nodes& nodes, Index nodeIndex);
+	InterpolationFixedPtr CreateInterpolationFixed(IBasisPtr basis);
 
 	class InterpolationFixed : public IInterpolation, public std::enable_shared_from_this<InterpolationFixed>
 	{

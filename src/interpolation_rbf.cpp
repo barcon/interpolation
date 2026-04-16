@@ -17,14 +17,14 @@ namespace interpolation
 				return eilig::EILIG_SUCCESS;
 			}
 
+			logger::Info(headerInterpolation, utils::string::Format("Iteration: {}, Residual: {}", iteration, residual));
+
 			return eilig::EILIG_CONTINUE;
 		};
 
-	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, const Nodes& nodes, Type function, Scalar shape)
+	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, Type function, Scalar shape)
 	{
 		auto res = InterpolationRBF::Create(basis, function, shape);
-
-		res->SetNodes(nodes);
 
 		return res;
 	}
@@ -202,9 +202,6 @@ namespace interpolation
 } //namespace interpolation
 
 /*
-
-
-
 	Scalar InterpolationRBF::FunctionP0C(const Vector& point) const
 	{
 		return 1.0;
