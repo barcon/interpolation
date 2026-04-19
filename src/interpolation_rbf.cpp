@@ -105,7 +105,7 @@ namespace interpolation
 		nodes_ = nodes;
 		alpha_.clear();
 
-		logger::Info(headerInterpolation, "Solving InterpolationRBF linear system");
+		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
 
 		Matrix A(numberNodes, numberNodes, eilig::matrix_zeros);
 		Vector d(numberNodes, 0.0);
@@ -124,6 +124,7 @@ namespace interpolation
 
 			}
 		}
+		logger::Info(headerInterpolation, "Assembly linear system completed.");
 
 		for (DofIndex dof = 0; dof < numberDof; ++dof)
 		{
