@@ -5,7 +5,7 @@ namespace interpolation
 {
 	CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
 		{
-			Scalar tolerance{ 1e-2 };
+			Scalar tolerance{ 1e-1 };
 
 			if (std::isnan(residual))
 			{
@@ -116,12 +116,12 @@ namespace interpolation
 		{
 			const auto& point1 = nodes_[i]->GetPoint();
 
-			for (Index j = 0; j < numberNodes; ++j)
+			for (Index j = i; j < numberNodes; ++j)
 			{
 				const auto& point2 = nodes_[j]->GetPoint();
 
 				A(i, j) = (this->*function_)(point2, point1);
-
+				A(j, i) = A(i, j);
 			}
 		}
 		logger::Info(headerInterpolation, "Assembly linear system completed.");

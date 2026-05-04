@@ -17,6 +17,7 @@ namespace interpolation
 	using Scalar = eilig::Scalar;
 	using Vector = eilig::Vector;
 	using Matrix = eilig::Matrix;
+	using Sparse = eilig::Ellpack;
 	using Status = eilig::Status;
 
 	using Scalars = eilig::Scalars;
