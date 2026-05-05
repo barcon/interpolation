@@ -7,6 +7,8 @@ namespace interpolation
 		{
 			Scalar tolerance{ 1e-1 };
 
+			logger::Info(headerInterpolation, utils::string::Format("Iteration: {}, Residual: {}", iteration, residual));
+
 			if (std::isnan(residual))
 			{
 				return eilig::EILIG_NOT_CONVERGED;
@@ -17,7 +19,6 @@ namespace interpolation
 				return eilig::EILIG_SUCCESS;
 			}
 
-			logger::Info(headerInterpolation, utils::string::Format("Iteration: {}, Residual: {}", iteration, residual));
 
 			return eilig::EILIG_CONTINUE;
 		};
