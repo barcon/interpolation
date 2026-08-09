@@ -1,12 +1,14 @@
 -- premake5.lua
 workspace "interpolation"
-	configurations { "Debug", "Release" }
+	configurations { "Debug", "Release", "ReleaseCL" }
 	location "build"
 
 project "interpolation"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
+	architecture "x86_64"
+	objdir "%{cfg.location}/obj/%{cfg.platform}_%{cfg.buildcfg}"	
 
 	targetdir "build/%{cfg.buildcfg}"
 	includedirs { "../utils/src" }	
@@ -19,11 +21,17 @@ project "interpolation"
 	files { "src/**.hpp", "src/**.cpp" }
 
 	filter "configurations:Debug"
-		architecture "x86_64"     
 		defines { "DEBUG" }
 		symbols "On"
 
-	filter "configurations:Release"
-		architecture "x86_64"     
+	filter "configurations:Release"   
 		defines { "NDEBUG" }
 		optimize "Speed"
+
+
+	filter "configurations:ReleaseCL"   
+		defines { "NDEBUG", "EILIG_ENABLE_OPENCL" }
+		optimize "Speed"	
+		
+		includedirs { "../club/src" }	
+		includedirs { "../opencl/inc" }

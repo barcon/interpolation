@@ -3,7 +3,7 @@
 
 namespace interpolation
 {
-	CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
+	eilig::CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
 		{
 			Scalar tolerance{ 1e-1 };
 
@@ -202,51 +202,3 @@ namespace interpolation
 
 	}
 } //namespace interpolation
-
-/*
-	Scalar InterpolationRBF::FunctionP0C(const Vector& point) const
-	{
-		return 1.0;
-	}
-	Scalar InterpolationRBF::FunctionP1X(const Vector& point) const
-	{
-		return point(0);
-	}
-	Scalar InterpolationRBF::FunctionP1Y(const Vector& point) const
-	{
-		return point(1);
-	}
-	Scalar InterpolationRBF::FunctionP1Z(const Vector& point) const
-	{
-		return point(2);
-	}
-
-
-for (Index k = 0; k < order; ++k)
-{
-
-	A(i, k + numberNodes) = (this->*polynomials_[k])(point2);
-	A(k + numberNodes, i) = (this->*polynomials_[k])(point2);
-}
-
-
-switch (res->GetNumberCoordinates())
-{
-case 1:
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
-	break;
-case 2:
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP1Y);
-	break;
-case 3:
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP0C);
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP1X);
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP1Y);
-	res->polynomials_.push_back(&InterpolationRBF::FunctionP1Z);
-	break;
-default:
-	throw std::invalid_argument("Unsupported number of coordinates for RBF interpolation.");
-}*/
