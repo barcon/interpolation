@@ -5,7 +5,7 @@ namespace interpolation
 {
 	eilig::CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
 		{
-			Scalar tolerance{ 1e-1 };
+			Scalar tolerance{ 1e-2 };
 
 			logger::Info(headerInterpolation, utils::string::Format("Iteration: {}, Residual: {}", iteration, residual));
 
