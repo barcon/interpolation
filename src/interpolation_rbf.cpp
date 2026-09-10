@@ -75,6 +75,8 @@ namespace interpolation
 	{
 		return basis_->GetNumberCoordinates();
 	}
+
+#ifdef EILIG_ENABLE_OPENCL
 	void InterpolationRBF::SetNodes(const Nodes& nodes)
 	{
 		if (nodes.size() == 0)
@@ -109,8 +111,82 @@ namespace interpolation
 		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
 
 		Matrix A(numberNodes, numberNodes, eilig::matrix_zeros);
-		Vector d(numberNodes, 0.0);
 		Vector y(numberNodes, 0.0);
+		Vector d;
+		Status status{ eilig::EILIG_NOT_CONVERGED };
+
+		for (Index i = 0; i < numberNodes; ++i)
+		{
+			const auto& point1 = nodes_[i]->GetPoint();
+
+			for (Index j = i; j < numberNodes; ++j)
+			{
+				const auto& point2 = nodes_[j]->GetPoint();
+
+				A(i, j) = (this->*function_)(point2, point1);
+				A(j, i) = A(i, j);
+			}
+		}
+		eilig::opencl::Matrix A_opencl(A);
+		eilig::opencl::Vector y_opencl(y);
+		logger::Info(headerInterpolation, "Assembly linear system completed.");
+
+		for (DofIndex dof = 0; dof < numberDof; ++dof)
+		{
+			for (Index i = 0; i < numberNodes; ++i)
+			{
+				d(i) = nodes_[i]->GetValue(dof);
+			}
+
+			eilig::opencl::Vector d_opencl(d);
+
+			status = eilig::IterativeBiCGStab(A_opencl, y_opencl, d_opencl, callbackIterative);
+			if (status != eilig::EILIG_SUCCESS)
+			{
+				logger::Error(headerInterpolation, utils::string::Format("Interpolation failed to initialize: {}", eilig::messages.at(eilig::EILIG_NOT_CONVERGED)));
+				return;
+			}
+
+			alpha_.push_back(y_opencl.Convert());
+		}
+	}
+#else
+	void InterpolationRBF::SetNodes(const Nodes& nodes)
+	{
+		if (nodes.size() == 0)
+		{
+			throw std::invalid_argument("Nodes cannot be empty.");
+		}
+
+		auto numberDof = nodes[0]->GetNumberDof();
+		auto numberNodes = nodes.size();
+
+		for (auto& node : nodes)
+		{
+			if (node == nullptr)
+			{
+				throw std::invalid_argument("Nodes cannot contain null pointers.");
+			}
+
+			if (node->GetNumberCoordinates() != GetNumberCoordinates())
+			{
+				throw std::invalid_argument("Node coordinates do not match basis coordinates.");
+			}
+
+			if (node->GetNumberDof() != numberDof)
+			{
+				throw std::invalid_argument("All nodes must have the same number of degrees of freedom.");
+			}
+		}
+
+		nodes_ = nodes;
+		alpha_.clear();
+
+		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
+
+		Matrix A(numberNodes, numberNodes, eilig::matrix_zeros);
+		Vector y(numberNodes, 0.0);
+		Vector d;
 		Status status{ eilig::EILIG_NOT_CONVERGED };
 
 		for (Index i = 0; i < numberNodes; ++i)
@@ -126,7 +202,7 @@ namespace interpolation
 			}
 		}
 		logger::Info(headerInterpolation, "Assembly linear system completed.");
-
+		
 		for (DofIndex dof = 0; dof < numberDof; ++dof)
 		{
 			for (Index i = 0; i < numberNodes; ++i)
@@ -144,6 +220,8 @@ namespace interpolation
 			alpha_.push_back(y);
 		}
 	}
+#endif
+
 	void InterpolationRBF::SetBasis(IBasisPtr basis)
 	{
 		if (basis == nullptr)
