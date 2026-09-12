@@ -110,9 +110,9 @@ namespace interpolation
 
 		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
 
-		Matrix A(numberNodes, numberNodes, eilig::matrix_zeros);
-		Vector y(numberNodes, 0.0);
-		Vector d;
+		Matrix A(numberNodes, numberNodes);
+		Vector y(numberNodes);
+		Vector d(numberNodes);
 		Status status{ eilig::EILIG_NOT_CONVERGED };
 
 		for (Index i = 0; i < numberNodes; ++i)
@@ -184,9 +184,9 @@ namespace interpolation
 
 		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
 
-		Matrix A(numberNodes, numberNodes, eilig::matrix_zeros);
-		Vector y(numberNodes, 0.0);
-		Vector d;
+		Matrix A(numberNodes, numberNodes);
+		Vector y(numberNodes);
+		Vector d(numberNodes);;
 		Status status{ eilig::EILIG_NOT_CONVERGED };
 
 		for (Index i = 0; i < numberNodes; ++i)
@@ -201,6 +201,7 @@ namespace interpolation
 				A(j, i) = A(i, j);
 			}
 		}
+
 		logger::Info(headerInterpolation, "Assembly linear system completed.");
 		
 		for (DofIndex dof = 0; dof < numberDof; ++dof)
