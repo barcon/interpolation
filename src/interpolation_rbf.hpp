@@ -10,6 +10,26 @@ namespace interpolation
 	static const Type interpolation_function_GAU = 3;
 	static const Type interpolation_function_INQ = 4;
 
+	inline eilig::CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
+		{
+			Scalar tolerance{ 1e-2 };
+
+			logger::Info(headerInterpolation, utils::string::Format("Iteration: {}, Residual: {}", iteration, residual));
+
+			if (std::isnan(residual))
+			{
+				return eilig::EILIG_NOT_CONVERGED;
+			}
+
+			if (residual < tolerance)
+			{
+				return eilig::EILIG_SUCCESS;
+			}
+
+
+			return eilig::EILIG_CONTINUE;
+		};
+
 	class InterpolationRBF;
 	using InterpolationRBFPtr = std::shared_ptr< InterpolationRBF >;
 	using ConstInterpolationRBFPtr = std::shared_ptr< const InterpolationRBF >;
@@ -19,9 +39,7 @@ namespace interpolation
 	class InterpolationRBF : public IInterpolation, public std::enable_shared_from_this<InterpolationRBF>
 	{
 	public:
-		using Function_S_VV = Scalar(InterpolationRBF::*)(const Vector&, const Vector&) const;
-		using Function_S_V = Scalar(InterpolationRBF::*)(const Vector&) const;
-		using Polynomials = std::vector<Function_S_V>;
+		using FunctionPtr = Scalar(InterpolationRBF::*)(const Vector&, const Vector&) const;
 
 		virtual ~InterpolationRBF() = default;
 
@@ -29,6 +47,7 @@ namespace interpolation
 		
 		Type GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
+		Matrices GetValue(const Vectors& points) const override;
 		NumberCoordinates GetNumberCoordinates() const override;
 
 		void SetNodes(const Nodes& nodes) override;
@@ -45,8 +64,7 @@ namespace interpolation
 		Vectors alpha_;
 		Scalar shape_{ 0.1 };
 
-		Polynomials polynomials_;
-		Function_S_VV function_{ &InterpolationRBF::FunctionTPS };
+		FunctionPtr function_{ &InterpolationRBF::FunctionTPS };
 
 		Scalar FunctionTPS(const Vector& point1, const Vector& point2) const;
 		Scalar FunctionMQB(const Vector& point1, const Vector& point2) const;

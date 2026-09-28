@@ -19,6 +19,7 @@ namespace interpolation
 
 		Type GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
+		Matrices GetValue(const Vectors& points) const override;
 		NumberCoordinates GetNumberCoordinates() const override;
 
 		void SetNodes(const Nodes& nodes) override;

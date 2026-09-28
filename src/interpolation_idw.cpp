@@ -20,19 +20,19 @@ namespace interpolation
 
 		return res;
 	}
+	
 	Type InterpolationIDW::GetType() const
 	{
 		return type_;
 	}
 	Matrix InterpolationIDW::GetValue(const Vector& point) const
 	{
-		Scalar sum = 0.;
+		Matrix res;
+		Matrix partial;
+		
 		Scalars distance(numberNodes_);
 		Scalars weight(numberNodes_);
-		Nodes found;
-		Matrix res;
-		INodePtr output = node::CreateNode(0, point);
-
+		
 		if (tree_ == nullptr)
 		{
 			throw std::runtime_error("Search tree not initialized");
@@ -43,39 +43,118 @@ namespace interpolation
 			throw std::invalid_argument("Point dimensions do not match basis coordinates.");
 		}
 
-		found = tree_->SearchNumber(output, numberNodes_);
+		auto output = node::CreateNode(0, point);		
+		auto found = tree_->SearchNumber(output, numberNodes_);
 
 		if (found.size() != numberNodes_)
 		{
 			throw std::runtime_error("Min. number of nodes could not be found for the interpolation.");
 		}
-
+		
+		Scalar sum = 0.;
+		bool match = false;
+		
 		for (Index i = 0; i < numberNodes_; ++i)
 		{
 			distance[i] = basis_->Distance(found[i]->GetPoint(), output->GetPoint());
 
 			if (utils::math::IsAlmostEqual(distance[i], 0., 2))
 			{
-				res = found[i]->GetValue();
-				return res;
+				partial = found[i]->GetValue();
+				match = true;
+				break;
 			}
 
 			weight[i] = std::pow(distance[i], -shape_);
 			sum += weight[i];
 		}
 
-		res = weight[0] * found[0]->GetValue();
-		for (Index i = 1; i < numberNodes_; ++i)
+		if(match)
 		{
-			res = res + weight[i] * found[i]->GetValue();
+			res = partial;
+		}
+		else
+		{
+			partial = weight[0] * found[0]->GetValue();
+			for (Index i = 1; i < numberNodes_; ++i)
+			{
+				partial = partial + weight[i] * found[i]->GetValue();
+			}
+
+			res = (1.0 / sum) * partial;
 		}
 
-		return (1.0 / sum) * res;
+		return res;
+	}
+	Matrices InterpolationIDW::GetValue(const Vectors& points) const
+	{
+		Matrices res;
+		Matrix partial;
+
+		Scalars distance(numberNodes_);
+		Scalars weight(numberNodes_);
+		
+		if (tree_ == nullptr)
+		{
+			throw std::runtime_error("Search tree not initialized");
+		}
+
+		for (const auto& point : points)
+		{
+			if (point.GetRows() != GetNumberCoordinates())
+			{
+				throw std::invalid_argument("Point dimensions do not match basis coordinates.");
+			}
+
+			auto output = node::CreateNode(0, point);
+			auto found = tree_->SearchNumber(output, numberNodes_);
+
+			if (found.size() != numberNodes_)
+			{
+				throw std::runtime_error("Min. number of nodes could not be found for the interpolation.");
+			}
+
+			Scalar sum = 0.;
+			bool match = false;
+
+			for (Index i = 0; i < numberNodes_; ++i)
+			{
+				distance[i] = basis_->Distance(found[i]->GetPoint(), output->GetPoint());
+
+				if (utils::math::IsAlmostEqual(distance[i], 0., 2))
+				{
+					partial = found[i]->GetValue();
+					match = true;
+					break;
+				}
+
+				weight[i] = std::pow(distance[i], -shape_);
+				sum += weight[i];
+			}
+			
+			if(match)
+			{
+				res.push_back(partial);
+			}
+			else
+			{
+				partial = weight[0] * found[0]->GetValue();
+				for (Index i = 1; i < numberNodes_; ++i)
+				{
+					partial = partial + weight[i] * found[i]->GetValue();
+				}
+
+				res.push_back((1.0 / sum) * partial);
+			}
+		}
+
+		return res;
 	}
 	NumberCoordinates InterpolationIDW::GetNumberCoordinates() const
 	{
 		return basis_->GetNumberCoordinates();
 	}
+	
 	void InterpolationIDW::SetNodes(const Nodes & nodes)
 	{
 		if (nodes.size() == 0)

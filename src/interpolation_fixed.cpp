@@ -20,6 +20,7 @@ namespace interpolation
 
 		return res;
 	}
+	
 	Type InterpolationFixed::GetType() const
 	{
 		return type_;
@@ -33,10 +34,27 @@ namespace interpolation
 
 		return nodes_[nodeIndex_]->GetValue();
 	}
+	Matrices InterpolationFixed::GetValue(const Vectors& points) const
+	{
+		Matrices res;
+
+		for (const auto& point : points)
+		{
+			if (point.GetRows() != GetNumberCoordinates())
+			{
+				throw std::invalid_argument("Point dimensions do not match basis coordinates.");
+			}
+
+			res.push_back(nodes_[nodeIndex_]->GetValue());
+		}
+
+		return res;
+	}
 	NumberCoordinates InterpolationFixed::GetNumberCoordinates() const
 	{
 		return basis_->GetNumberCoordinates();
 	}
+
 	void InterpolationFixed::SetNodes(const Nodes& nodes)
 	{
 		if (nodes.size() == 0)

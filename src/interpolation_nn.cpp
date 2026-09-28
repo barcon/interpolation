@@ -20,14 +20,14 @@ namespace interpolation
 
 		return res;
 	}
+
 	Type InterpolationNN::GetType() const
 	{
 		return type_;
 	}
 	Matrix InterpolationNN::GetValue(const Vector& point) const
 	{
-		INodePtr found;
-		INodePtr output = node::CreateNode(0, point);
+		auto node = node::CreateNode(0, point);
 
 		if (tree_ == nullptr)
 		{
@@ -39,19 +39,49 @@ namespace interpolation
 			throw std::invalid_argument("Point dimensions do not match basis coordinates.");
 		}
 
-		found = tree_->Search(output);
+		auto found = tree_->Search(node);
 
 		if (found == nullptr)
 		{
-			throw std::runtime_error("Min. number of nodes could not be found for the interpolation.");
+			throw std::runtime_error("Nearest node could not be found for the interpolation.");
 		}
 
 		return found->GetValue();
+	}
+	Matrices InterpolationNN::GetValue(const Vectors& points) const
+	{
+		Matrices res;
+
+		if (tree_ == nullptr)
+		{
+			throw std::runtime_error("Search tree not initialized");
+		}
+
+		for (const auto& point : points)
+		{
+			if (point.GetRows() != GetNumberCoordinates())
+			{
+				throw std::invalid_argument("Point dimensions do not match basis coordinates.");
+			}
+
+			auto node = node::CreateNode(0, point);
+			auto found = tree_->Search(node);
+
+			if (found == nullptr)
+			{
+				throw std::runtime_error("Nearest node could not be found for the interpolation.");
+			}
+
+			res.push_back(found->GetValue());
+		}
+
+		return res;
 	}
 	NumberCoordinates InterpolationNN::GetNumberCoordinates() const
 	{
 		return basis_->GetNumberCoordinates();
 	}
+
 	void InterpolationNN::SetNodes(const Nodes& nodes)
 	{
 		if (nodes.size() == 0)

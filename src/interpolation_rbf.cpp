@@ -3,26 +3,6 @@
 
 namespace interpolation
 {
-	eilig::CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
-		{
-			Scalar tolerance{ 1e-2 };
-
-			logger::Info(headerInterpolation, utils::string::Format("Iteration: {}, Residual: {}", iteration, residual));
-
-			if (std::isnan(residual))
-			{
-				return eilig::EILIG_NOT_CONVERGED;
-			}
-
-			if (residual < tolerance)
-			{
-				return eilig::EILIG_SUCCESS;
-			}
-
-
-			return eilig::EILIG_CONTINUE;
-		};
-
 	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, Type function, Scalar shape)
 	{
 		auto res = InterpolationRBF::Create(basis, function, shape);
@@ -42,6 +22,7 @@ namespace interpolation
 
 		return res;
 	}
+
 	Type InterpolationRBF::GetType() const
 	{
 		return type_;
@@ -52,7 +33,12 @@ namespace interpolation
 		auto numberDof = nodes_[0]->GetNumberDof();
 
 		Vector rbf(numberNodes, 0.0);
-		Matrix output(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), eilig::matrix_zeros);
+		Matrix res(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), eilig::matrix_zeros);
+
+		if (point.GetRows() != GetNumberCoordinates())
+		{
+			throw std::invalid_argument("Point dimensions do not match basis coordinates.");
+		}
 
 		if (alpha_.size() == 0)
 		{
@@ -66,93 +52,56 @@ namespace interpolation
 
 		for (DofIndex dof = 0; dof < numberDof; ++dof)
 		{
-			output(dof) = eilig::Dot(rbf, alpha_[dof]);
+			res(dof) = eilig::Dot(rbf, alpha_[dof]);
 		}
 
-		return output;
+		return res;
+	}
+	Matrices InterpolationRBF::GetValue(const Vectors& points) const
+	{
+		auto numberNodes = nodes_.size();
+		auto numberDof = nodes_[0]->GetNumberDof();
+
+		Matrices res;
+		Matrix aux(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), eilig::matrix_zeros);
+		Vector rbf(numberNodes, 0.0);
+
+		if (alpha_.size() == 0)
+		{
+			throw std::runtime_error("Radial basis functions not initialized");
+		}
+
+		for (const auto& point : points)
+		{
+			if (point.GetRows() != GetNumberCoordinates())
+			{
+				throw std::invalid_argument("Point dimensions do not match basis coordinates.");
+			}
+
+			for (Index i = 0; i < numberNodes; ++i)
+			{
+				rbf(i) = (this->*function_)(point, nodes_[i]->GetPoint());
+			}
+
+			for (DofIndex dof = 0; dof < numberDof; ++dof)
+			{
+				aux(dof) = eilig::Dot(rbf, alpha_[dof]);
+			}
+
+			res.push_back(aux);
+		}
+
+		return res;
 	}
 	NumberCoordinates InterpolationRBF::GetNumberCoordinates() const
 	{
 		return basis_->GetNumberCoordinates();
 	}
 
-#ifdef EILIG_ENABLE_OPENCL
 	void InterpolationRBF::SetNodes(const Nodes& nodes)
 	{
-		if (nodes.size() == 0)
-		{
-			throw std::invalid_argument("Nodes cannot be empty.");
-		}
-
-		auto numberDof = nodes[0]->GetNumberDof();
-		auto numberNodes = nodes.size();
-
-		for (auto& node : nodes)
-		{
-			if (node == nullptr)
-			{
-				throw std::invalid_argument("Nodes cannot contain null pointers.");
-			}
-
-			if (node->GetNumberCoordinates() != GetNumberCoordinates())
-			{
-				throw std::invalid_argument("Node coordinates do not match basis coordinates.");
-			}
-
-			if (node->GetNumberDof() != numberDof)
-			{
-				throw std::invalid_argument("All nodes must have the same number of degrees of freedom.");
-			}
-		}
-
-		nodes_ = nodes;
-		alpha_.clear();
-
-		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
-
-		Matrix A(numberNodes, numberNodes);
-		Vector y(numberNodes);
-		Vector d(numberNodes);
 		Status status{ eilig::EILIG_NOT_CONVERGED };
 
-		for (Index i = 0; i < numberNodes; ++i)
-		{
-			const auto& point1 = nodes_[i]->GetPoint();
-
-			for (Index j = i; j < numberNodes; ++j)
-			{
-				const auto& point2 = nodes_[j]->GetPoint();
-
-				A(i, j) = (this->*function_)(point2, point1);
-				A(j, i) = A(i, j);
-			}
-		}
-		eilig::opencl::Matrix A_opencl(A);
-		eilig::opencl::Vector y_opencl(y);
-		logger::Info(headerInterpolation, "Assembly linear system completed.");
-
-		for (DofIndex dof = 0; dof < numberDof; ++dof)
-		{
-			for (Index i = 0; i < numberNodes; ++i)
-			{
-				d(i) = nodes_[i]->GetValue(dof);
-			}
-
-			eilig::opencl::Vector d_opencl(d);
-
-			status = eilig::IterativeBiCGStab(A_opencl, y_opencl, d_opencl, callbackIterative);
-			if (status != eilig::EILIG_SUCCESS)
-			{
-				logger::Error(headerInterpolation, utils::string::Format("Interpolation failed to initialize: {}", eilig::messages.at(eilig::EILIG_NOT_CONVERGED)));
-				return;
-			}
-
-			alpha_.push_back(y_opencl.Convert());
-		}
-	}
-#else
-	void InterpolationRBF::SetNodes(const Nodes& nodes)
-	{
 		if (nodes.size() == 0)
 		{
 			throw std::invalid_argument("Nodes cannot be empty.");
@@ -182,12 +131,11 @@ namespace interpolation
 		nodes_ = nodes;
 		alpha_.clear();
 
-		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
+		logger::Info(headerInterpolation, "Assembly of linear system started.");
 
 		Matrix A(numberNodes, numberNodes);
 		Vector y(numberNodes);
 		Vector d(numberNodes);;
-		Status status{ eilig::EILIG_NOT_CONVERGED };
 
 		for (Index i = 0; i < numberNodes; ++i)
 		{
@@ -201,9 +149,9 @@ namespace interpolation
 				A(j, i) = A(i, j);
 			}
 		}
+		logger::Info(headerInterpolation, "Assembly of linear system completed.");
+		logger::Info(headerInterpolation, utils::string::Format("Solving InterpolationRBF linear system: {} equations", numberNodes));
 
-		logger::Info(headerInterpolation, "Assembly linear system completed.");
-		
 		for (DofIndex dof = 0; dof < numberDof; ++dof)
 		{
 			for (Index i = 0; i < numberNodes; ++i)
@@ -221,8 +169,6 @@ namespace interpolation
 			alpha_.push_back(y);
 		}
 	}
-#endif
-
 	void InterpolationRBF::SetBasis(IBasisPtr basis)
 	{
 		if (basis == nullptr)
@@ -271,13 +217,11 @@ namespace interpolation
 		Scalar r = basis_->Distance(point1, point2);
 
 		return std::exp(-(shape_ * r) * (shape_ * r));
-
 	}
 	Scalar InterpolationRBF::FunctionINQ(const Vector& point1, const Vector& point2) const
 	{
 		Scalar r = basis_->Distance(point1, point2);
 
 		return 1.0 / (r * r + shape_ * shape_);
-
 	}
 } //namespace interpolation

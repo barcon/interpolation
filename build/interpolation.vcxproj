@@ -74,7 +74,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLOBAL;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\utils\src;..\..\logger\src;..\..\eilig\src;..\..\basis\src;..\..\node\src;..\..\kdtree\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -92,7 +92,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLOBAL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\utils\src;..\..\logger\src;..\..\eilig\src;..\..\basis\src;..\..\node\src;..\..\kdtree\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -114,7 +114,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>NDEBUG;EILIG_ENABLE_OPENCL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLOBAL;NDEBUG;EILIG_ENABLE_OPENCL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\utils\src;..\..\logger\src;..\..\eilig\src;..\..\basis\src;..\..\node\src;..\..\kdtree\src;..\..\club\src;..\..\opencl\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -137,6 +137,8 @@
     <ClInclude Include="..\src\interpolation_fixed.hpp" />
     <ClInclude Include="..\src\interpolation_idw.hpp" />
     <ClInclude Include="..\src\interpolation_nn.hpp" />
+    <ClInclude Include="..\src\interpolation_opencl_kernel.hpp" />
+    <ClInclude Include="..\src\interpolation_opencl_rbf.hpp" />
     <ClInclude Include="..\src\interpolation_rbf.hpp" />
     <ClInclude Include="..\src\interpolation_types.hpp" />
   </ItemGroup>
@@ -144,6 +146,14 @@
     <ClCompile Include="..\src\interpolation_fixed.cpp" />
     <ClCompile Include="..\src\interpolation_idw.cpp" />
     <ClCompile Include="..\src\interpolation_nn.cpp" />
+    <ClCompile Include="..\src\interpolation_opencl_kernel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\interpolation_opencl_rbf.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\src\interpolation_rbf.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

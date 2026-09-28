@@ -8,6 +8,10 @@
 #include "node.hpp"
 #include "kdtree.hpp"
 
+#ifdef EILIG_ENABLE_OPENCL
+#include "club.hpp"
+#endif
+
 #include <variant>
 #include <unordered_map>
 #include <memory>
@@ -22,6 +26,7 @@ namespace interpolation
 
 	using Scalars = eilig::Scalars;
 	using Vectors = eilig::Vectors;
+	using Matrices = eilig::Matrices;
 
 	using String = utils::String;
 
@@ -58,6 +63,7 @@ namespace interpolation
 
 		virtual Type GetType() const = 0;
 		virtual Matrix GetValue(const Vector& point) const = 0;
+		virtual Matrices GetValue(const Vectors& points) const = 0;
 		virtual NumberCoordinates GetNumberCoordinates() const = 0;
 
 		virtual void SetNodes(const Nodes& nodes) = 0;
