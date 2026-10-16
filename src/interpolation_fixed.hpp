@@ -18,7 +18,7 @@ namespace interpolation
 
 		virtual ~InterpolationFixed() = default;
 
-		Type GetType() const override;
+		InterpolationType GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
 		Matrices GetValue(const Vectors& points) const override;
 		NumberCoordinates GetNumberCoordinates() const override;
@@ -31,7 +31,7 @@ namespace interpolation
 
 		void SetBasis(IBasisPtr basis);
 
-		Type type_{ interpolation_fixed };
+		InterpolationType type_{ InterpolationType::fixed };
 		Nodes nodes_;
 		Index nodeIndex_{ 0 };
 		IBasisPtr basis_{ nullptr };

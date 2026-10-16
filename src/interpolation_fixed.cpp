@@ -21,7 +21,7 @@ namespace interpolation
 		return res;
 	}
 	
-	Type InterpolationFixed::GetType() const
+	InterpolationType InterpolationFixed::GetType() const
 	{
 		return type_;
 	}

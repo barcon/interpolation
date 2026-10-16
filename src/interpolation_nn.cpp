@@ -21,7 +21,7 @@ namespace interpolation
 		return res;
 	}
 
-	Type InterpolationNN::GetType() const
+	InterpolationType InterpolationNN::GetType() const
 	{
 		return type_;
 	}

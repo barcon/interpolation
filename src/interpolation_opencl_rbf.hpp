@@ -12,7 +12,7 @@ namespace interpolation
 		using InterpolationRBFPtr = std::shared_ptr< InterpolationRBF >;
 		using ConstInterpolationRBFPtr = std::shared_ptr< const InterpolationRBF >;
 
-		InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, Type function, Scalar shape);
+		InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, FunctionType functionType, Scalar shape);
 
 		class InterpolationRBF : public IInterpolation, public std::enable_shared_from_this<InterpolationRBF>
 		{
@@ -22,9 +22,9 @@ namespace interpolation
 
 			virtual ~InterpolationRBF() = default;
 
-			static InterpolationRBFPtr Create(IBasisPtr basis, Type function, Scalar shape);
+			static InterpolationRBFPtr Create(IBasisPtr basis, FunctionType functionType, Scalar shape);
 
-			Type GetType() const override;
+			InterpolationType GetType() const override;
 			Matrix GetValue(const Vector& point) const override;
 			Matrices GetValue(const Vectors& points) const override;
 			NumberCoordinates GetNumberCoordinates() const override;
@@ -35,13 +35,13 @@ namespace interpolation
 			InterpolationRBF();
 
 			void SetBasis(IBasisPtr basis);
-			void SetFunction(Type function, Scalar shape);			
+			void SetFunction(FunctionType functionType, Scalar shape);			
 			
 			BufferPtr DotProduct(NumberNodes numberNodes, Number numberPoints, NumberDof numberDof, BufferPtr rbfGPU, BufferPtr alphaGPU) const;			
 			BufferPtr CreateBufferPoints(const Vectors& points) const;
 			Matrices CreateResult(Number numberPoints, NumberDof numberDof, BufferPtr resultGPU) const;
 			
-			Type type_{ interpolation_rbf };
+			InterpolationType type_{ InterpolationType::rbf };
 			IBasisPtr basis_{ nullptr };
 			Nodes nodes_;
 			Scalar shape_{ 0.1 };

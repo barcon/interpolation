@@ -20,7 +20,7 @@ namespace interpolation
 
 		virtual ~InterpolationNN() = default;
 
-		Type GetType() const override;
+		InterpolationType GetType() const override;
 		Matrix GetValue(const Vector& point) const override;
 		Matrices GetValue(const Vectors& points) const override;
 		NumberCoordinates GetNumberCoordinates() const override;
@@ -32,7 +32,7 @@ namespace interpolation
 
 		void SetBasis(IBasisPtr basis);
 		
-		Type type_{ interpolation_nn };
+		InterpolationType type_{ InterpolationType::nn };
 		TreePtr tree_{ nullptr };
 		IBasisPtr basis_{ nullptr };
 	};

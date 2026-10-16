@@ -18,39 +18,20 @@
 
 namespace interpolation
 {
-	using Scalar = eilig::Scalar;
-	using Vector = eilig::Vector;
-	using Matrix = eilig::Matrix;
-	using Sparse = eilig::Ellpack;
-	using Status = eilig::Status;
+	using namespace eilig;
+	using namespace basis;
+	using namespace node;
+	using namespace kdtree;
 
-	using Scalars = eilig::Scalars;
-	using Vectors = eilig::Vectors;
-	using Matrices = eilig::Matrices;
-
-	using String = utils::String;
-
-	using IBasisPtr = basis::IBasisPtr;
-	using INodePtr = node::INodePtr;
-
-	using Nodes = node::Nodes;
-	using TreePtr = kdtree::TreePtr;
-	
 	const String headerInterpolation = "INTERPOLATION";
 
-	using Index = node::Index;
-	using DofIndex = node::DofIndex;
-
-	using Number = node::Number;
-	using NumberDof = node::NumberDof;
-	using NumberNodes = node::Number;
-	using NumberCoordinates = node::NumberCoordinates;
-
-	using Type = std::size_t;
-	static const Type interpolation_fixed	= 1;
-	static const Type interpolation_idw		= 2;
-	static const Type interpolation_nn		= 3;
-	static const Type interpolation_rbf		= 4;
+	enum class InterpolationType
+	{
+		fixed = 0,
+		idw = 1,
+		nn = 2,
+		rbf = 3
+	};
 
 	class IInterpolation;
 	using IInterpolationPtr = std::shared_ptr< IInterpolation >;
@@ -61,7 +42,7 @@ namespace interpolation
 	public:
 		virtual ~IInterpolation() = default;
 
-		virtual Type GetType() const = 0;
+		virtual InterpolationType GetType() const = 0;
 		virtual Matrix GetValue(const Vector& point) const = 0;
 		virtual Matrices GetValue(const Vectors& points) const = 0;
 		virtual NumberCoordinates GetNumberCoordinates() const = 0;

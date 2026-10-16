@@ -8,13 +8,13 @@ namespace interpolation
 {
 	namespace opencl
 	{
-		InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, Type function, Scalar shape)
+		InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, FunctionType functionType, Scalar shape)
 		{
-			auto res = InterpolationRBF::Create(basis, function, shape);
+			auto res = InterpolationRBF::Create(basis, functionType, shape);
 
 			return res;
 		}
-		InterpolationRBFPtr InterpolationRBF::Create(IBasisPtr basis, Type function, Scalar shape)
+		InterpolationRBFPtr InterpolationRBF::Create(IBasisPtr basis, FunctionType functionType, Scalar shape)
 		{
 			class MakeSharedEnabler : public InterpolationRBF
 			{
@@ -23,7 +23,7 @@ namespace interpolation
 			auto res = std::make_shared<MakeSharedEnabler>();
 
 			res->SetBasis(basis);
-			res->SetFunction(function, shape);
+			res->SetFunction(functionType, shape);
 
 			return res;
 		}
@@ -32,7 +32,7 @@ namespace interpolation
 		{
 			kernel_ = KernelInterpolationRBF::Create();
 		}
-		Type InterpolationRBF::GetType() const
+		InterpolationType InterpolationRBF::GetType() const
 		{
 			return type_;
 		}
@@ -44,7 +44,7 @@ namespace interpolation
 			auto numberRows = nodes_[0]->GetValue().GetRows();
 			auto numberCols = nodes_[0]->GetValue().GetCols();
 
-			Matrix res(numberRows, numberCols, eilig::matrix_zeros);
+			Matrix res(numberRows, numberCols, MatrixType::zeros);
 			
 			eilig::opencl::Vector rbf(numberNodes);
 
@@ -172,23 +172,23 @@ namespace interpolation
 
 			basis_ = basis;
 		}
-		void InterpolationRBF::SetFunction(Type function, Scalar shape)
+		void InterpolationRBF::SetFunction(FunctionType functionType, Scalar shape)
 		{
-			switch (function)
+			switch (functionType)
 			{
-			case interpolation_function_INQ:
+			case FunctionType::INQ:
 				function1_ = &InterpolationRBF::FunctionINQ1;
 				function2_ = &InterpolationRBF::FunctionINQ2;
 				break;
-			case interpolation_function_GAU:
+			case FunctionType::GAU:
 				function1_ = &InterpolationRBF::FunctionGAU1;
 				function2_ = &InterpolationRBF::FunctionGAU2;
 				break;
-			case interpolation_function_MQB:
+			case FunctionType::MQB:
 				function1_ = &InterpolationRBF::FunctionMQB1;
 				function2_ = &InterpolationRBF::FunctionMQB2;
 				break;
-			case interpolation_function_TPS:
+			case FunctionType::TPS:
 			default:
 				function1_ = &InterpolationRBF::FunctionTPS1;
 				function2_ = &InterpolationRBF::FunctionTPS2;
@@ -263,8 +263,6 @@ namespace interpolation
 			Scalars buffer(numberPoints * numberDof);
 
 			resultGPU->Read(GetContext()->GetQueues()[deviceIndex_], 0, sizeof(Scalar) * buffer.size(), &buffer[0], CL_TRUE);
-
-			//for()
 
 			return res;
 		}

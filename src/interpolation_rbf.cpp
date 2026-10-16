@@ -3,13 +3,13 @@
 
 namespace interpolation
 {
-	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, Type function, Scalar shape)
+	InterpolationRBFPtr CreateInterpolationRBF(IBasisPtr basis, FunctionType functionType, Scalar shape)
 	{
-		auto res = InterpolationRBF::Create(basis, function, shape);
+		auto res = InterpolationRBF::Create(basis, functionType, shape);
 
 		return res;
 	}
-	InterpolationRBFPtr InterpolationRBF::Create(IBasisPtr basis, Type function, Scalar shape)
+	InterpolationRBFPtr InterpolationRBF::Create(IBasisPtr basis, FunctionType functionType, Scalar shape)
 	{
 		class MakeSharedEnabler : public InterpolationRBF
 		{
@@ -18,12 +18,12 @@ namespace interpolation
 		auto res = std::make_shared<MakeSharedEnabler>();
 
 		res->SetBasis(basis);
-		res->SetFunction(function, shape);
+		res->SetFunction(functionType, shape);
 
 		return res;
 	}
 
-	Type InterpolationRBF::GetType() const
+	InterpolationType InterpolationRBF::GetType() const
 	{
 		return type_;
 	}
@@ -33,7 +33,7 @@ namespace interpolation
 		auto numberDof = nodes_[0]->GetNumberDof();
 
 		Vector rbf(numberNodes, 0.0);
-		Matrix res(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), eilig::matrix_zeros);
+		Matrix res(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), MatrixType::zeros);
 
 		if (point.GetRows() != GetNumberCoordinates())
 		{
@@ -63,7 +63,7 @@ namespace interpolation
 		auto numberDof = nodes_[0]->GetNumberDof();
 
 		Matrices res;
-		Matrix aux(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), eilig::matrix_zeros);
+		Matrix aux(nodes_[0]->GetValue().GetRows(), nodes_[0]->GetValue().GetCols(), MatrixType::zeros);
 		Vector rbf(numberNodes, 0.0);
 
 		if (alpha_.size() == 0)
@@ -178,20 +178,20 @@ namespace interpolation
 
 		basis_ = basis;
 	}
-	void InterpolationRBF::SetFunction(Type function, Scalar shape)
+	void InterpolationRBF::SetFunction(FunctionType functionType, Scalar shape)
 	{
-		switch (function)
+		switch (functionType)
 		{
-		case interpolation_function_INQ:
+		case FunctionType::INQ:
 			function_ = &InterpolationRBF::FunctionINQ;
 			break;
-		case interpolation_function_GAU:
+		case FunctionType::GAU:
 			function_ = &InterpolationRBF::FunctionGAU;
 			break;
-		case interpolation_function_MQB:
+		case FunctionType::MQB:
 			function_ = &InterpolationRBF::FunctionMQB;
 			break;
-		case interpolation_function_TPS:
+		case FunctionType::TPS:
 		default:
 			function_ = &InterpolationRBF::FunctionTPS;
 			break;
