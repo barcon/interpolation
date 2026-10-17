@@ -13,7 +13,7 @@ namespace interpolation
 		INQ = 4
 	};
 
-	inline eilig::CallbackIterative callbackIterative = [](Index iteration, Scalar residual) -> long long int
+	inline eilig::CallbackIterative callbackIterativeRBF = [](Index iteration, Scalar residual) -> long long int
 		{
 			Scalar tolerance{ 1e-2 };
 

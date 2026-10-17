@@ -159,7 +159,7 @@ namespace interpolation
 				d(i) = nodes_[i]->GetValue(dof);
 			}
 
-			status = eilig::IterativeBiCGStab(A, y, d, callbackIterative);
+			status = eilig::IterativeBiCGStab(A, y, d, callbackIterativeRBF);
 			if (status != eilig::EILIG_SUCCESS)
 			{
 				logger::Error(headerInterpolation, utils::string::Format("Interpolation failed to initialize: {}", eilig::messages.at(eilig::EILIG_NOT_CONVERGED)));
