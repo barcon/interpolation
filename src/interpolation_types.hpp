@@ -35,7 +35,6 @@ namespace interpolation
 
 	class IInterpolation;
 	using IInterpolationPtr = std::shared_ptr< IInterpolation >;
-	using ConstIInterpolationPtr = std::shared_ptr< const IInterpolation >;
 
 	class IInterpolation
 	{
